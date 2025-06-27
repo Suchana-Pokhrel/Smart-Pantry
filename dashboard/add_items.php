@@ -33,7 +33,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             alert('$error');
           </script>";
     } else {
-        //image uploads
+        // Image uploads
         if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
             $target_dir = "../assets/img/products/";
 
@@ -42,9 +42,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 mkdir($target_dir, 0755, true);
             }
 
-            $image_name = time() . '_' . basename($_FILES['image']['name']); // rename to prevent conflict
+            $original_image_name = basename($_FILES['image']['name']); // Original filename without path
+            $image_name = time() . '_' . $original_image_name; // Default new name with timestamp
             $target_file = $target_dir . $image_name;
-            $image_type = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
+            $image_type = strtolower(pathinfo($original_image_name, PATHINFO_EXTENSION));
 
             // Validate image
             if (!in_array($image_type, ['jpg', 'jpeg', 'png', 'gif'])) {
@@ -53,18 +54,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             } elseif ($_FILES['image']['size'] > 5000000) {
                 $error = "Image size must be less than 5MB.";
                 echo "<script>alert('$error');</script>";
-            } elseif (!move_uploaded_file($_FILES['image']['tmp_name'], $target_file)) {
-                $error = "Failed to upload image";
-                echo "<script>alert('$error');</script>";
             } else {
-                $image = $target_file; // Store this in DB
+                // Check for existing image without timestamp
+                $existing_files = glob($target_dir . preg_replace('/^\d+_/', '', $original_image_name));
+                if (!empty($existing_files)) {
+                    $image_name = basename($existing_files[0]); // Reuse existing filename
+                } elseif (move_uploaded_file($_FILES['image']['tmp_name'], $target_file)) {
+                    // Successfully uploaded new image
+                } else {
+                    $error = "Failed to upload image";
+                    echo "<script>alert('$error');</script>";
+                }
+                $image = $image_name; // Store only the filename
             }
         }
 
-
         if (empty($error)) {
-            $stmt = $conn->prepare("INSERT INTO items(name,quantity,expiry_date, category, image) VALUES (?, ?, ?, ?, ?)");
-            $stmt->bind_param("sisss", $name, $quantity, $expiry_date, $category, $image); //sisss bhneko string,integer,string,string,string ho
+            $stmt = $conn->prepare("INSERT INTO items(name, quantity, expiry_date, category, image) VALUES (?, ?, ?, ?, ?)");
+            $stmt->bind_param("sisss", $name, $quantity, $expiry_date, $category, $image);
 
             if ($stmt->execute()) {
                 $_SESSION['success'];

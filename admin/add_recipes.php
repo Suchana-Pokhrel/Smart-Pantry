@@ -100,14 +100,14 @@ $items_result = $conn->query($query);
             <div class="col-4">
                 <ul class="nav justify-content-center flex-wrap mt-4">
                     <li class="nav-item">
-                        <a class="nav-link text-white " href="admin_dashboard.php">Admin Dashboard</a>
+                        <a class="nav-link text-white " href="./admin_dashboard.php">Admin Dashboard</a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link text-white" href="">Orders</a>
+                        <a class="nav-link text-white" href="./orders.php">Orders</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link  active" href="add_recipes.php">Add Recipes</a>
+                        <a class="nav-link  active" href="./add_recipes.php">Add Recipes</a>
                     </li>
                 </ul>
             </div>

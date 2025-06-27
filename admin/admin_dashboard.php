@@ -4,11 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Pantry - Add Recipe</title>
+    <title>Admin-Dashboard</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css">
-    <link rel="shortcut icon" href="../assets/img/icons/admin_recipe.jpg" type="image/x-icon">
+    <link rel="shortcut icon" href="../assets/img/icons/logo.png" type="image/x-icon">
 </head>
 
 <style>
@@ -96,6 +96,10 @@
         border-radius: 10px;
         font-weight: 500;
     }
+    
+    .nav-link:hover{
+        color: black;
+    }
 
     .active {
         font-weight: bold;
@@ -137,21 +141,17 @@
             <div class="col-4">
                 <ul class="nav justify-content-center flex-wrap mt-4">
                     <li class="nav-item">
-                        <a class="nav-link active" href="admin_dashboard.php">Admin Dashboard</a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="">Orders</a>
+                        <a class="nav-link active" href="./admin_dashboard.php">Admin Dashboard</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link " href="add_recipes.php">Add Recipes</a>
+                        <a class="nav-link" href="./orders.php">Orders</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link " href="./add_recipes.php">Add Recipes</a>
                     </li>
                 </ul>
             </div>
             <div class="col-3 m-4 px-5">
-                <!-- <a href="admin_login.php"><i class="fa-solid fa-user"></i></a> -->
-                <!-- <a href="add_item.php"><i class="fa-solid fa-cart-shopping"></i></a>
-                <a href="search.php"><i class="fa-solid fa-magnifying-glass"></i></a> -->
                 <button type="button" class="btn"><a class="nav-link text-black" style="background-color: #ff6200;" href="../user_logout.php">Logout</a></button>
             </div>
         </div>
@@ -165,8 +165,7 @@
                     <div class="panel-icon">📦</div>
                     <p class="text-title">Order Panel</p>
                 </div>
-                <button class="card-button"><a href="order.php">More info</a> <i class="fa-solid fa-arrow-right"></i></button>
-
+                <button class="card-button"><a href="./orders.php">More info</a> <i class="fa-solid fa-arrow-right"></i></button>
             </div>
         </div>
 
@@ -176,17 +175,27 @@
                     <div class="panel-icon">🛒</div>
                     <p class="text-title">Add Products</p>
                 </div>
-                <button class="card-button"><a href="products.php">More info</a> <i class="fa-solid fa-arrow-right"></i></button>
+                <button class="card-button"><a href="admin_add_item.php">More info</a> <i class="fa-solid fa-arrow-right"></i></button>
             </div>
         </div>
 
         <div class="heading">
             <div class="card">
                 <div class="card-details">
-                    <div class="panel-icon">🛠️</div>
-                    <p class="text-title">Admin Panel</p>
+                    <div class="panel-icon">📖</div>
+                    <p class="text-title">Add Recipes </p>
                 </div>
-                <button class="card-button"><a href="admin_account.php">More info</a> <i class="fa-solid fa-arrow-right"></i></button>
+                <button class="card-button"><a href="./add_recipes.php">More info</a> <i class="fa-solid fa-arrow-right"></i></button>
+            </div>
+        </div>
+
+        <div class="heading">
+            <div class="card">
+                <div class="card-details">
+                    <div class="panel-icon">🧾</div>
+                    <p class="text-title">Show Products </p>
+                </div>
+                <button class="card-button"><a href="./admin_products.php">More info</a> <i class="fa-solid fa-arrow-right"></i></button>
             </div>
         </div>
     </div>

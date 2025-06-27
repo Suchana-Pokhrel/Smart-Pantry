@@ -164,7 +164,7 @@ $show_login_modal = isset($_GET['show_login']) && $_GET['show_login'] === 'true'
                         <a class="nav-link  active" href="./inventory.php">Inventory</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-white" href="./dashboard/orders.php">Orders</a>
+                        <a class="nav-link text-white" href="./orders.php">Orders</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link text-white" href="./dashboard/recipes.php">Recipes</a>
@@ -173,9 +173,9 @@ $show_login_modal = isset($_GET['show_login']) && $_GET['show_login'] === 'true'
             </div>
              <div class="col-3 m-4 px-5">
                 <a href="../user_login.php"><i class="fa-solid fa-user"></i></a>
-                <a href="./order_supplies.php"><i class="fa-solid fa-cart-shopping"></i></a>
+                <a href="./add_to_cart.php"><i class="fa-solid fa-cart-shopping"></i></a>
                 <a href="search.php"><i class="fa-solid fa-magnifying-glass"></i></a>
-                <button type="button" class="btn"><a class="nav-link text-black" style="background-color: #ff6200;" href="../user_logout.php">Logout</a></button>
+                <button type="button" class="btn"><a class="nav-link text-black" style="background-color: #ff6200;color:black;border-radius:10px;" href="../user_logout.php">Logout</a></button>
             </div>
         </div>
     </div>

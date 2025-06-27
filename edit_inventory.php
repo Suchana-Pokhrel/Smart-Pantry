@@ -189,10 +189,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </ul>
             </div>
              <div class="col-3 m-4 px-5">
-                <a href="../user_login.php"><i class="fa-solid fa-user"></i></a>
-                <a href="../order_supplies.php"><i class="fa-solid fa-cart-shopping"></i></a>
+                <a href="./user_login.php"><i class="fa-solid fa-user"></i></a>
+                <a href="./cart.php"><i class="fa-solid fa-cart-shopping"></i></a>
                 <a href="search.php"><i class="fa-solid fa-magnifying-glass"></i></a>
-                <button type="button" class="btn"><a class="nav-link text-black" style="background-color: #ff6200;" href="../user_logout.php">Logout</a></button>
+                <button type="button" class="btn"><a class="nav-link text-black" style="background-color: #ff6200;color:black;border-radius:10px;" href="../user_logout.php">Logout</a></button>
             </div>
         </div>
     </div>

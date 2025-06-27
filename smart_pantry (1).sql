@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 19, 2025 at 10:56 AM
+-- Generation Time: Jun 27, 2025 at 04:32 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.1.25
 
@@ -43,26 +43,6 @@ INSERT INTO `admins` (`id`, `email`, `password`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `carts`
---
-
-CREATE TABLE `carts` (
-  `id` int(11) NOT NULL,
-  `product_id` int(11) NOT NULL,
-  `quantity` int(11) NOT NULL DEFAULT 1,
-  `created_at` datetime NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `carts`
---
-
-INSERT INTO `carts` (`id`, `product_id`, `quantity`, `created_at`) VALUES
-(7, 1, 2, '2025-06-19 14:33:53');
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `items`
 --
 
@@ -74,15 +54,16 @@ CREATE TABLE `items` (
   `category` varchar(100) DEFAULT NULL,
   `image` varchar(255) DEFAULT NULL,
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  `updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp()
+  `updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `price` decimal(10,2) NOT NULL DEFAULT 0.00
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `items`
 --
 
-INSERT INTO `items` (`id`, `name`, `quantity`, `expiry_date`, `category`, `image`, `created_at`, `updated_at`) VALUES
-(2, 'Butter', 5, '2025-06-06', 'Dairy', '', '2025-06-19 12:32:14', NULL);
+INSERT INTO `items` (`id`, `name`, `quantity`, `expiry_date`, `category`, `image`, `created_at`, `updated_at`, `price`) VALUES
+(12, 'Meat', 6, '2025-06-30', 'Protein', 'meat.jpeg', '2025-06-27 18:14:17', NULL, 0.00);
 
 -- --------------------------------------------------------
 
@@ -91,13 +72,24 @@ INSERT INTO `items` (`id`, `name`, `quantity`, `expiry_date`, `category`, `image
 --
 
 CREATE TABLE `orders` (
-  `id` int(11) NOT NULL,
-  `item_id` int(11) NOT NULL,
-  `quantity` int(11) NOT NULL,
-  `order_date` datetime NOT NULL DEFAULT current_timestamp(),
+  `id` bigint(20) NOT NULL,
+  `user_name` varchar(255) NOT NULL,
+  `address` varchar(255) NOT NULL,
+  `phone` varchar(20) NOT NULL,
+  `items` text NOT NULL,
   `status` varchar(50) NOT NULL DEFAULT 'Pending',
-  `created_at` datetime NOT NULL DEFAULT current_timestamp()
+  `order_date` datetime NOT NULL DEFAULT current_timestamp(),
+  `cancel_reason` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `orders`
+--
+
+INSERT INTO `orders` (`id`, `user_name`, `address`, `phone`, `items`, `status`, `order_date`, `cancel_reason`) VALUES
+(4, 'Suchana Pokhrel', 'Kapan', '9861212758', 'chilli (x1)', 'Processing', '2025-06-27 08:13:52', ''),
+(5, 'Suchana Pokhrel', 'Kapan', '9861212758', 'Butter (x5)', 'Pending', '2025-06-27 19:43:12', NULL),
+(6, 'Suchana Pokhrel', 'Kapan', '9861212758', 'Butter (x1)', 'Pending', '2025-06-27 19:45:10', NULL);
 
 -- --------------------------------------------------------
 
@@ -109,15 +101,16 @@ CREATE TABLE `products` (
   `id` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
   `price` decimal(10,2) NOT NULL,
-  `stock` int(11) NOT NULL
+  `quantity` int(11) NOT NULL,
+  `image` varchar(1000) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `products`
 --
 
-INSERT INTO `products` (`id`, `name`, `price`, `stock`) VALUES
-(1, 'Butter', 122.00, 10);
+INSERT INTO `products` (`id`, `name`, `price`, `quantity`, `image`) VALUES
+(8, 'Butter', 3000.00, 3, 'butter.jpeg');
 
 -- --------------------------------------------------------
 
@@ -160,8 +153,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `email`, `password`, `confirm_password`, `created_at`) VALUES
-(1, 'Suchana', 'Suchana@gmail.com', 'suchana', 'suchana', '2025-06-19 12:45:52'),
-(5, 'sdfgnm', 'cvb@gmail.com', 'as', 'as', '2025-06-19 12:49:32');
+(1, 'Suchana', 'Suchana@gmail.com', 'suchana', 'suchana', '2025-06-19 12:45:52');
 
 --
 -- Indexes for dumped tables
@@ -175,13 +167,6 @@ ALTER TABLE `admins`
   ADD UNIQUE KEY `email` (`email`);
 
 --
--- Indexes for table `carts`
---
-ALTER TABLE `carts`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `product_id` (`product_id`);
-
---
 -- Indexes for table `items`
 --
 ALTER TABLE `items`
@@ -191,8 +176,7 @@ ALTER TABLE `items`
 -- Indexes for table `orders`
 --
 ALTER TABLE `orders`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `item_id` (`item_id`);
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `products`
@@ -223,28 +207,22 @@ ALTER TABLE `admins`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
--- AUTO_INCREMENT for table `carts`
---
-ALTER TABLE `carts`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
-
---
 -- AUTO_INCREMENT for table `items`
 --
 ALTER TABLE `items`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `recipes`
@@ -257,22 +235,6 @@ ALTER TABLE `recipes`
 --
 ALTER TABLE `users`
   MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
-
---
--- Constraints for dumped tables
---
-
---
--- Constraints for table `carts`
---
-ALTER TABLE `carts`
-  ADD CONSTRAINT `carts_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Constraints for table `orders`
---
-ALTER TABLE `orders`
-  ADD CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`item_id`) REFERENCES `products` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

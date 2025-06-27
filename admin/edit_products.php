@@ -1,27 +1,44 @@
 <?php
-session_start();
 include '../include/db.php';
+session_start();
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $name = $_POST['item_name'];
-    $quantity = $_POST['quantity'];
+$product = null;
+if (isset($_GET['id'])) {
+    $product_id = intval($_GET['id']);
+    $stmt = $conn->prepare("SELECT * FROM products WHERE id = ?");
+    $stmt->bind_param("i", $product_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $product = $result->fetch_assoc();
+    $stmt->close();
+    // Debug output
+    if (!$product) {
+        echo "<!-- Debug: No product found for ID $product_id. Query result: " . json_encode($result->fetch_all()) . " -->";
+    } else {
+        echo "<!-- Debug: Product found for ID $product_id: " . json_encode($product) . " -->";
+    }
+} else {
+    echo "<!-- Debug: No ID provided in URL -->";
+}
+
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['item_id'])) {
+    $product_id = intval($_POST['item_id']);
+    $name = mysqli_real_escape_string($conn, $_POST['item_name']);
+    $quantity = intval($_POST['quantity']);
     $price = floatval($_POST['price']);
-    $image = ''; // Default to empty, will be set based on existing or new image
+    $image = '';
 
     if (empty($name) || $quantity < 0 || $price < 0) {
         $error = "Please fill in all required fields correctly.";
-        echo "<script>alert('$error');</script>";
     } else {
-        $product_id = isset($_POST['item_id']) ? intval($_POST['item_id']) : null;
-        $existing_image = $product_id ? $conn->query("SELECT image FROM products WHERE id = $product_id")->fetch_assoc()['image'] : null;
+        $existing_image = $conn->query("SELECT image FROM products WHERE id = $product_id")->fetch_assoc()['image'];
 
         if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-            $target_dir = dirname(__FILE__) . '/assets/img/products/'; // Absolute path from script location
+            $target_dir = dirname(__FILE__) . '/assets/img/products/';
             if (!is_dir($target_dir)) {
                 mkdir($target_dir, 0755, true);
             }
             $original_image_name = basename($_FILES['image']['name']);
-            // Sanitize filename without timestamp
             $image_name = preg_replace('/[^A-Za-z0-9.-]/', '_', $original_image_name);
             $base_name = pathinfo($image_name, PATHINFO_FILENAME);
             $extension = pathinfo($image_name, PATHINFO_EXTENSION);
@@ -35,78 +52,42 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             if (!in_array($image_type, ['jpg', 'jpeg', 'png', 'gif'])) {
                 $error = "Only JPG, JPEG, PNG or GIF are allowed";
-                echo "<script>alert('$error');</script>";
             } elseif ($_FILES['image']['size'] > 5000000) {
                 $error = "Image size must be less than 5MB.";
-                echo "<script>alert('$error');</script>";
             } elseif (move_uploaded_file($_FILES['image']['tmp_name'], $target_file)) {
                 $image = $image_name;
-                echo "<!-- Image uploaded to: $target_file -->"; // Debug output
-                // Delete old image if it exists and a new one is uploaded
-                if ($product_id && $existing_image && $existing_image != $image && file_exists($target_dir . $existing_image)) {
+                if ($existing_image && $existing_image != $image && file_exists($target_dir . $existing_image)) {
                     unlink($target_dir . $existing_image);
                 }
             } else {
                 $error = "Failed to upload image. Check directory permissions or path: $target_dir";
-                echo "<script>alert('$error');</script>";
             }
         } else {
-            // No new image uploaded, reuse existing image if it exists
             $image = $existing_image ?: '';
         }
 
         if (empty($error)) {
-            if ($product_id) {
-                $stmt = $conn->prepare("UPDATE products SET name = ?, quantity = ?, price = ?, image = ? WHERE id = ?");
-                $stmt->bind_param("sidsi", $name, $quantity, $price, $image, $product_id);
-                $message = "Product updated successfully";
-            } else {
-                $stmt = $conn->prepare("INSERT INTO products (name, quantity, price, image) VALUES (?, ?, ?, ?)");
-                $stmt->bind_param("sids", $name, $quantity, $price, $image);
-                $message = "Product added successfully";
-            }
-
+            $stmt = $conn->prepare("UPDATE products SET name = ?, quantity = ?, price = ?, image = ? WHERE id = ?");
+            $stmt->bind_param("sidsi", $name, $quantity, $price, $image, $product_id);
             if ($stmt->execute()) {
-                echo "<script>alert('$message'); window.location.href='../add_to_cart.php';</script>";
-                exit;
+                header("Location: admin_products.php");
             } else {
-                $error = "Error: " . $conn->error;
-                echo "<script>alert('$error');</script>";
+                $error = "Error updating product: " . $conn->error;
             }
             $stmt->close();
         }
     }
-
-    if ($error) {
-        $_SESSION['error'] = $error;
-        header('Location: add_item.php' . ($product_id ? '?id=' . $product_id : ''));
-        exit;
-    } else {
-        $_SESSION['error'] = "Invalid Request";
-        header('Location: add_item.php' . ($product_id ? '?id=' . $product_id : ''));
-        exit;
-    }
-}
-
-// Fetch product for editing if id is provided
-$product = null;
-if (isset($_GET['id'])) {
-    $product_id = intval($_GET['id']);
-    $stmt = $conn->prepare("SELECT * FROM products WHERE id = ?");
-    $stmt->bind_param("i", $product_id);
-    $stmt->execute();
-    $product = $stmt->get_result()->fetch_assoc();
-    $stmt->close();
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
-    <title>Admin-Add Item</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="shortcut icon" href="../assets/img/icons/add_item.png" type="image/x-icon">
+    <title>Edit Product</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="shortcut icon" href="../assets/img/icons/edit-products.png" type="image/x-icon">
 </head>
 
 <style>
@@ -262,40 +243,39 @@ if (isset($_GET['id'])) {
     </div>
 
     <div class="container mt-5">
-        <h2><?php echo $product ? 'Edit Product' : 'Add New Product'; ?></h2>
-        <?php if (isset($_SESSION['error'])) echo '<div class="alert alert-danger">' . $_SESSION['error'] . '</div>';
-        unset($_SESSION['error']); ?>
-        <form method="post" enctype="multipart/form-data">
-            <input type="hidden" name="item_id" value="<?php echo $product ? $product['id'] : ''; ?>">
-            <div class="mb-3">
-                <label class="form-label">Product Name</label>
-                <input type="text" class="form-control" name="item_name" value="<?php echo $product ? htmlspecialchars($product['name']) : ''; ?>" required>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Quantity</label>
-                <input type="number" class="form-control" name="quantity" value="<?php echo $product ? htmlspecialchars($product['quantity']) : ''; ?>" required>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Price</label>
-                <input type="number" step="0.01" class="form-control" name="price" value="<?php echo $product ? htmlspecialchars($product['price']) : ''; ?>" required>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Image</label>
-                <input type="file" class="form-control" name="image" accept="image/*">
-                <?php if ($product && $product['image']): ?>
-                    <img src="assets/img/products/<?php echo htmlspecialchars($product['image']); ?>" alt="Current Image" style="max-width: 200px; margin-top: 10px;">
-                <?php endif; ?>
-            </div>
-            <button type="submit" class="btn btn-primary"><?php echo $product ? 'Update Product' : 'Add Product'; ?></button>
-        </form>
+        <h2>Edit Product</h2>
+        <?php if (isset($error)) echo '<div class="alert alert-danger">' . $error . '</div>'; ?>
+        <?php if ($product): ?>
+            <form method="post" enctype="multipart/form-data">
+                <input type="hidden" name="item_id" value="<?php echo htmlspecialchars($product['id']); ?>">
+                <div class="mb-3">
+                    <label class="form-label">Product Name</label>
+                    <input type="text" class="form-control" name="item_name" value="<?php echo htmlspecialchars($product['name']); ?>" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Quantity</label>
+                    <input type="number" class="form-control" name="quantity" value="<?php echo htmlspecialchars($product['quantity']); ?>" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Price</label>
+                    <input type="number" step="0.01" class="form-control" name="price" value="<?php echo htmlspecialchars($product['price']); ?>" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Image</label>
+                    <input type="file" class="form-control" name="image" accept="image/*">
+                    <?php if ($product['image']): ?>
+                        <img src="../assets/img/products/<?php echo htmlspecialchars($product['image']); ?>" alt="Current Image" style="max-width: 200px; margin-top: 10px;">
+                    <?php endif; ?>
+                </div>
+                <button type="submit" class="btn btn-primary">Update Product</button>
+                <a href="admin_products.php" class="btn btn-secondary">Cancel</a>
+            </form>
+        <?php else: ?>
+            <p>Product not found.</p>
+            <a href="admin_products.php" class="btn btn-secondary">Back to Products</a>
+        <?php endif; ?>
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        document.querySelector('select[name="category"]').addEventListener('change', function() {
-            document.getElementById('customCategory').style.display = this.value === 'Other' ? 'block' : 'none';
-        });
-    </script>
 </body>
 
 </html>
