@@ -11,6 +11,7 @@ $is_logged_in = isset($_SESSION['user_id']);
 
 // Check if login modal should be shown (passed from dashboard.php)
 $show_login_modal = isset($_GET['show_login']) && $_GET['show_login'] === 'true';
+
 ?>
 
 <div class="modals" style="background-color: white;">
@@ -29,7 +30,7 @@ $show_login_modal = isset($_GET['show_login']) && $_GET['show_login'] === 'true'
         <?php if ($is_logged_in): ?>
             <button type="button" class="btn btn-warning action-btn" data-bs-toggle="modal" data-bs-target="#addItemModal" aria-label="Add new inventory item">Add Item</button>
             <a href="recipes.php?suggest=true" class="btn btn-warning action-btn" aria-label="Suggest a recipe">Suggest Recipe</a>
-            <a href="../order_supplies.php" class="btn btn-warning action-btn" aria-label="Order supplies">Order Supplies</a>
+            <a href="../add_to_cart.php" class="btn btn-warning action-btn" aria-label="Order supplies">Order Supplies</a>
         <?php else: ?>
             <a href="dashboard.php?show_login=true" class="btn btn-warning action-btn" aria-label="Add new inventory item">Add Item</a>
             <a href="dashboard.php?show_login=true" class="btn btn-warning action-btn" aria-label="Suggest a recipe">Suggest Recipe</a>

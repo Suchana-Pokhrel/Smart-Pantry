@@ -1,14 +1,13 @@
 <?php
 include './include/db.php';
-
 session_start();
 
 // LOGIN LOGIC
 if (isset($_POST['submit'])) {
     $email = $_POST['email'];
     $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
-    $pass = $_POST['pass']; // Retrieve and sanitize email
-    $pass = htmlspecialchars(trim($_POST['pass'])); // Retrieve and sanitize password
+    $pass = $_POST['pass']; // Retrieve and sanitize password
+    $pass = htmlspecialchars(trim($_POST['pass']));
 
     $query = "SELECT * FROM `users` WHERE email='$email' AND password='$pass'";
     $result = mysqli_query($conn, $query);
@@ -16,7 +15,10 @@ if (isset($_POST['submit'])) {
     if ($result && mysqli_num_rows($result) > 0) {
         $row = mysqli_fetch_assoc($result);
         $_SESSION['user_id'] = $row['id'];
-        header("Location: ./dashboard/dashboard.php");
+        $_SESSION['user_logged_in'] = true; // Set login session
+        // Redirect based on redirect parameter or default to add_to_cart.php
+        $redirect = isset($_GET['redirect']) && !empty($_GET['redirect']) ? $_GET['redirect'] : './add_to_cart.php';
+        header("Location: " . $redirect);
         exit;
     } else {
         echo "<script>alert('Invalid email or password.');</script>";
